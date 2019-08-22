@@ -223,11 +223,16 @@
             (first = tab[(n - 1) & hash]) != null) {
                 //根据hash值找到的这个index下标不为null
             if (first.hash == hash && // always check first node
-                ((k = first.key) == key || (key != null && key.equals(k))))
+                ((k = first.key) == key || (key != null && key.equals(k)))){
+                    //找到相同的节点，返回first这个节点
                 return first;
+            }
             if ((e = first.next) != null) {
-                if (first instanceof TreeNode)
+                //下一个节点
+                if (first instanceof TreeNode){
+                    //如果这个节点是红黑树
                     return ((TreeNode<K,V>)first).getTreeNode(hash, key);
+                }
                 do {
                     if (e.hash == hash &&
                         ((k = e.key) == key || (key != null && key.equals(k))))
