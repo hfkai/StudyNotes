@@ -1,5 +1,6 @@
     static final int MIN_TREEIFY_CAPACITY = 64;//红黑树所需要的最小长度
     /** 
+    *
      * 当单链表大于等于8的时候，转化为红黑树
      * Replaces all linked nodes in bin at index for given hash unless
      * table is too small, in which case resizes instead.

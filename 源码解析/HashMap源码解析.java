@@ -1,5 +1,6 @@
  
 	/**
+    *
 	*HashMap 源码解析 
 	*@autor hfk
 	*/
