@@ -1,4 +1,5 @@
- 
+  #jdk8的Hashmap
+  #
 	/**
     *
 	*HashMap 源码解析 
@@ -226,9 +227,13 @@
                 ((k = first.key) == key || (key != null && key.equals(k))))
                 return first;
             if ((e = first.next) != null) {
-                if (first instanceof TreeNode)
-                    return ((TreeNode<K,V>)first).getTreeNode(hash, key);
+                if (first instanceof TreeNode){//first节点是红黑树
+                //红黑树获取节点
+                    return ((TreeNode<K,V>)first)
+                    .getTreeNode(hash, key);
+                }
                 do {
+                    //不是红黑树,也就是说是链表，因此对其进行遍历循环查询
                     if (e.hash == hash &&
                         ((k = e.key) == key || (key != null && key.equals(k))))
                         return e;
@@ -237,6 +242,12 @@
         }
         return null;
     }
+    	//Q：1、HashMap的核心数据结构是什么？数据+链表+红黑树 ，因为红黑树的查找性呢过
+	//比链表高
+	//HashMap存储Element为什么不用取模？取模有哪些弊端？
+	//
+	//JDK8HashMap性能
+	//jdk8比jdk7性能要高15%-20%
 	//---------------------------LinkedHashMap 基于map的双向链表-----------------------
 	
 	//删除最久的节点,也就是head节点
