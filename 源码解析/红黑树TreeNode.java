@@ -1,4 +1,13 @@
     static final int MIN_TREEIFY_CAPACITY = 64;//红黑树所需要的最小长度
+
+    //该方法用于比较红黑树val的值
+    //identityHashCode和hashCode的区别是，
+    //identityHashCode会返回对象的hashCode，而不管对象是否重写了hashCode方法。
+    public static native int identityHashCode(Object x);
+    //假如hashCode一样的话，而且类也一样(也就是类重写了hashCode
+    //,并且返回了一样的值)，key又不相同，HashMap就会
+    //去比较两者对象的HashCode
+
     /** 
     *
      * 当单链表大于等于8的时候，转化为红黑树
