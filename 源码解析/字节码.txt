@@ -1,0 +1,133 @@
+
+## 字节码指令集：https://blog.csdn.net/Xinyeshuaiqi/article/details/80718533
+
+Classfile /Users/owner/Downloads/TestJava/out/production/TestJava/JvmOne.class
+  Last modified 2019-8-26; size 900 bytes
+  MD5 checksum a15de3be56ab80717ca710000596a625
+  Compiled from "JvmOne.java"
+public class JvmOne
+  minor version: 0
+  major version: 52
+  flags: ACC_PUBLIC, ACC_SUPER
+Constant pool:
+   #1 = Methodref          #9.#30         // java/lang/Object."<init>":()V
+   #2 = Fieldref           #31.#32        // java/lang/System.out:Ljava/io/PrintStream;
+   #3 = Class              #33            // java/lang/StringBuilder
+   #4 = Methodref          #3.#30         // java/lang/StringBuilder."<init>":()V
+   #5 = String             #34            // -->>>
+   #6 = Methodref          #3.#35         // java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+   #7 = Methodref          #3.#36         // java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+   #8 = Methodref          #3.#37         // java/lang/StringBuilder.toString:()Ljava/lang/String;
+   #9 = Class              #38            // java/lang/Object
+  #10 = Methodref          #39.#40        // java/io/PrintStream.printf:(Ljava/lang/String;[Ljava/lang/Object;)Ljava/io/PrintStream;
+  #11 = String             #41            // ---》》》
+  #12 = Methodref          #39.#42        // java/io/PrintStream.println:(Ljava/lang/String;)V
+  #13 = Class              #43            // JvmOne
+  #14 = Utf8               <init>
+  #15 = Utf8               ()V
+  #16 = Utf8               Code
+  #17 = Utf8               LineNumberTable
+  #18 = Utf8               LocalVariableTable
+  #19 = Utf8               this
+  #20 = Utf8               LJvmOne;
+  #21 = Utf8               main
+  #22 = Utf8               ([Ljava/lang/String;)V
+  #23 = Utf8               args
+  #24 = Utf8               [Ljava/lang/String;
+  #25 = Utf8               i
+  #26 = Utf8               I
+  #27 = Utf8               j
+  #28 = Utf8               SourceFile
+  #29 = Utf8               JvmOne.java
+  #30 = NameAndType        #14:#15        // "<init>":()V
+  #31 = Class              #44            // java/lang/System
+  #32 = NameAndType        #45:#46        // out:Ljava/io/PrintStream;
+  #33 = Utf8               java/lang/StringBuilder
+  #34 = Utf8               -->>>
+  #35 = NameAndType        #47:#48        // append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+  #36 = NameAndType        #47:#49        // append:(I)Ljava/lang/StringBuilder;
+  #37 = NameAndType        #50:#51        // toString:()Ljava/lang/String;
+  #38 = Utf8               java/lang/Object
+  #39 = Class              #52            // java/io/PrintStream
+  #40 = NameAndType        #53:#54        // printf:(Ljava/lang/String;[Ljava/lang/Object;)Ljava/io/PrintStream;
+  #41 = Utf8               ---》》》
+  #42 = NameAndType        #55:#56        // println:(Ljava/lang/String;)V
+  #43 = Utf8               JvmOne
+  #44 = Utf8               java/lang/System
+  #45 = Utf8               out
+  #46 = Utf8               Ljava/io/PrintStream;
+  #47 = Utf8               append
+  #48 = Utf8               (Ljava/lang/String;)Ljava/lang/StringBuilder;
+  #49 = Utf8               (I)Ljava/lang/StringBuilder;
+  #50 = Utf8               toString
+  #51 = Utf8               ()Ljava/lang/String;
+  #52 = Utf8               java/io/PrintStream
+  #53 = Utf8               printf
+  #54 = Utf8               (Ljava/lang/String;[Ljava/lang/Object;)Ljava/io/PrintStream;
+  #55 = Utf8               println
+  #56 = Utf8               (Ljava/lang/String;)V
+{
+  public JvmOne();
+    descriptor: ()V
+    flags: ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return
+      LineNumberTable:
+        line 3: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   LJvmOne;
+
+  public static void main(java.lang.String[]);
+    descriptor: ([Ljava/lang/String;)V
+    flags: ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=4, locals=3, args_size=1
+         0: iconst_0
+         1: istore_1
+         2: iconst_1
+         3: istore_2
+         4: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
+         7: new           #3                  // class java/lang/StringBuilder
+        10: dup
+        11: invokespecial #4                  // Method java/lang/StringBuilder."<init>":()V
+        14: ldc           #5                  // String -->>>
+        16: invokevirtual #6                  // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        19: iload_1
+        20: iload_2
+        21: iadd
+        22: invokevirtual #7                  // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+        25: invokevirtual #8                  // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        28: iconst_0
+        29: anewarray     #9                  // class java/lang/Object
+        32: invokevirtual #10                 // Method java/io/PrintStream.printf:(Ljava/lang/String;[Ljava/lang/Object;)Ljava/io/PrintStream;
+        35: pop
+        36: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
+        39: new           #3                  // class java/lang/StringBuilder
+        42: dup
+        43: invokespecial #4                  // Method java/lang/StringBuilder."<init>":()V
+        46: ldc           #11                 // String ---》》》
+        48: invokevirtual #6                  // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        51: iload_1
+        52: iload_2
+        53: iadd
+        54: invokevirtual #7                  // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+        57: invokevirtual #8                  // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        60: invokevirtual #12                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+        63: return
+      LineNumberTable:
+        line 5: 0
+        line 6: 2
+        line 7: 4
+        line 8: 36
+        line 9: 63
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      64     0  args   [Ljava/lang/String;
+            2      62     1     i   I
+            4      60     2     j   I
+}
+SourceFile: "JvmOne.java"
