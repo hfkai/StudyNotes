@@ -117,6 +117,10 @@ JDK7.0
                     e.hash = null == e.key ? 0 : hash(e.key);
                 }
                 int i = indexFor(e.hash, newCapacity);
+                // 线程1进行完之后,变成了b->a
+                // 但是线程2的e和next还是a->b的顺序
+                // 又由于1.7采取的是头插法,
+                // 这就导致了执行到第3次的时候b的next指向的是a
                 e.next = newTable[i];//线程2
                 newTable[i] = e;
                 e = next;

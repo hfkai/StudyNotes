@@ -34,7 +34,11 @@
 	HashMap负载因子为0.75是空间和时间成本的一种折中
 	如果取值0.5的话，会增加未使用的空间，如果取1的话，会增加结构的复杂度
 	0.75设置为一个经验值（由于长度是2的整次幂，所以*0.75一般都可以得到一个整数的结果）
-	
+	总结：
+    1、从区间上来说，0.5太小，会减少hash碰撞，造成空间的浪费,定义为1的话，则会造成hash碰撞增多
+    2、从数学角度上来说，由于长度是2的整次幂，所以*0.75一般都可以得到一个整数的结果
+    3、从泊松分布上来说，0.7多可以使得碰撞的元素在8以上的概率极大减小
+    但是为什么是0.75这个值,其实只是个经验值,和泊松分布并没有什么关系,java官方自己说的.
 */    
 	public V put(K key, V value) {
         return putVal(hash(key), key, value, false, true);
@@ -70,9 +74,10 @@
 			}else if (p instanceof TreeNode){
 				//如果table[i]里面已经有红黑树，则插入红黑树，并进行旋转的操作
 				//如果有相同hash和相同key的话，就返回值
+                //具体请看下一篇博文红黑树，里面有具体的讲解
                 e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
             }else {
-				//单链表，往下查找并插入节点
+				//单链表，往下查找并插入节点  尾插法
                 for (int binCount = 0; ; ++binCount) {
                     if ((e = p.next) == null) {
 						//找到null的节点，进行插入
@@ -229,17 +234,10 @@
                 return first;
             }
             if ((e = first.next) != null) {
-<<<<<<< HEAD
-                //下一个节点
-                if (first instanceof TreeNode){
-                    //如果这个节点是红黑树
-                    return ((TreeNode<K,V>)first).getTreeNode(hash, key);
-=======
                 if (first instanceof TreeNode){//first节点是红黑树
                 //红黑树获取节点
                     return ((TreeNode<K,V>)first)
                     .getTreeNode(hash, key);
->>>>>>> a8d78e1e7dd35c34323411f62166e4fcde03708c
                 }
                 do {
                     //不是红黑树,也就是说是链表，因此对其进行遍历循环查询
@@ -258,7 +256,29 @@
 	//JDK8HashMap性能
 	//jdk8比jdk7性能要高15%-20%
 	//---------------------------LinkedHashMap 基于map的双向链表-----------------------
-	
+	/**
+    * 在map插入的时候初始化，关联前后节点,从而保证其有序性 p1<->p2
+    * 因次迭代器在遍历linkemap的时候，只需要取出e的after
+    *在这里和map的迭代器做个对比，map的迭代器是从table的0~(length-1)
+    * 由于hash函数的原因，所以必然是无序的
+     */
+    Node<K,V> newNode(int hash, K key, V value, Node<K,V> e) {
+        LinkedHashMapEntry<K,V> p =
+            new LinkedHashMapEntry<K,V>(hash, key, value, e);
+        linkNodeLast(p);
+        return p;
+    }
+ // link at the end of list
+    private void linkNodeLast(LinkedHashMapEntry<K,V> p) {
+        LinkedHashMapEntry<K,V> last = tail;
+        tail = p;
+        if (last == null)
+            head = p;
+        else {
+            p.before = last;
+            last.after = p;
+        }
+    }
 	//删除最久的节点,也就是head节点
 	 void afterNodeInsertion(boolean evict) { // possibly remove eldest
         LinkedHashMap.Entry<K,V> first;
@@ -278,6 +298,10 @@
         return false;
     }
 	//移除一个节点
+    /**
+    * @param matchValue if true only remove if value is equal
+     * @param movable if false do not move other nodes while removing
+     */
 	final Node<K,V> removeNode(int hash, Object key, Object value,
                                boolean matchValue, boolean movable) {
         Node<K,V>[] tab; Node<K,V> p; int n, index;
