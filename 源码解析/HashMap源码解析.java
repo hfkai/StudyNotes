@@ -49,7 +49,6 @@
 		//这么做也能在保证table的length比较小的时候，也能
 		//保证到高低位的bit都参与到hash的计算中来，同时也不会有太大的开销
 		return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
-		
     }
   /**
   @param evict 如果为false，则表处于创建模式。

@@ -1,8 +1,10 @@
-    ## 红黑树讲解 本文最好对照着此文中来看，尤其是修复的情况与源码中一一对应，你会
+    ## 红黑树讲解 本文最好对照着此文中来看，尤其是红黑树修复的情况与源码中一一对应，你会
     #  豁然开朗许多,如果不能，请告知，我就再改改咯(O^O)
-    # 当然，鉴于本人水平有限，文中如果有差错，请指正
-    ## https://blog.csdn.net/v_july_v/article/details/6105630
+    #  当然，鉴于本人水平有限，文中如果有差错，请指正
+    ## 此文： https://blog.csdn.net/v_july_v/article/details/6105630
     ## https://www.jianshu.com/p/d780ed60874a 左右旋动画化gif（写博客的时候，可以贴图上去）
+    ##有关红黑树的漫画 https://zhuanlan.zhihu.com/p/31805309
+    ##红黑树演示代码下载 https://files-cdn.cnblogs.com/files/bbvi/RedBlackBinaryTree.rar
 
     static final int MIN_TREEIFY_CAPACITY = 64;//红黑树所需要的最小长度
 
@@ -14,6 +16,14 @@
     //,并且返回了一样的值)，key又不相同，HashMap就会
     //去比较两者对象的HashCode
 
+     /**
+        如果一个数组元素里面的链表数大于等于8的时候，
+        就会判断能不能进行红黑树的转化(分成两步走，如果数组长度少于64，
+        则让数组进行扩容(扩容的时候，里面的链表会进行重新分配,把链表里面所
+        有元素hash值低的值记录到一个链表集合中，位置放在原来的位置，同理，
+        高位hash元素记录到高位的链表集合中，位置放在(原来位置+旧的数组长度))，
+        如果数组长度大于64且table[index]里面的链表长度还是>=8，则直接进行红黑树的转化)
+     **/
     /** 
     *
      * 当单链表大于等于8的时候，转化为红黑树
@@ -23,7 +33,7 @@
     final void treeifyBin(Node<K,V>[] tab, int hash) {
         int n, index; Node<K,V> e;//
         if (tab == null || (n = tab.length) < MIN_TREEIFY_CAPACITY){
-            //当tab数组为null或者少于红黑树所需要的最小长度，进行扩容，让链表均匀分配
+            //当tab数组为null或者少于红黑树所需要的最小长度64，进行扩容，让链表均匀分配
             resize();
         }else if ((e = tab[index = (n - 1) & hash]) != null) {
             //当前tab[index]已经有元素
@@ -484,14 +494,15 @@
         // *     /   \
         // *    lr     xpp               
         // *          /  \                 
-        // *         O2  O3 并把  r赋值给root根节点,并将颜色设置为黑色
+        // *         O2  O3 并把  l赋值给root根节点,并将颜色设置为黑色
                     (root = l).red = false;
                 }else if (pp.right == p){
                     pp.right = l;
                 }else{
                     pp.left = l;
                 }
-                ////最后，把p赋值给l的右边节点，并更改p的父节点为r
+                ////最后，把p赋值给l的右边节点，并更改p的父节点为l 
+                // 即关联p和l
                 l.right = p;
                 p.parent = l;
             }
@@ -601,38 +612,45 @@
                 return;
             }
             /***
-           1、 没有儿子，即为叶结点。直接把父结点的对应儿子指针设为NULL，删除儿子结点就OK了。
+            1、 没有儿子，即为叶结点。直接把父结点的对应儿子指针设为NULL，删除儿子结点就OK了。
             2、只有一个儿子。那么把父结点的相应儿子指针指向儿子的独生子，删除儿子结点也OK了。
-           3、 有两个儿子。这是最麻烦的情况，因为你删除节点之后，还要保证满足搜索二叉树的结构。
+            3、 有两个儿子。这是最麻烦的情况，因为你删除节点之后，还要保证满足搜索二叉树的结构。
             其实也比较容易，我们可以选择左儿子中的最大元素或者右儿子中的最小元素放到待删除节点的位置，
             就可以保证结构的不变。当然，你要记得调整子树，毕竟又出现了节点删除。习惯上大家选择左儿子中的
             最大元素，其实选择右儿子的最小元素也一样，没有任何差别，只是人们习惯从左向右。
             这里咱们也选择左儿子的最大元素，将它放到待删结点的位置。左儿子的最大元素其实很好找，
             只要顺着左儿子不断的去搜索右子树就可以了，直到找到一个没有右子树的结点。那就是最大的了。
+          
+           //注意：源码这里是找到右边最小的val
 
+            ★★★★★记笔记了: 
+            由于二叉查找树的性质，如果将当前节点替换为左子树中最大的或者右子树中最小的一定不会破坏二叉查找树的结构
+            （分析：你可以想象一下，一颗二叉查找树一定是左<根<右，所以要删除根节点，要么是左边的最大，要么是右边最小的val替换掉
+            根，才能维持左<根<右这个数据结构）
              */
+            //  要了解红黑树的删除，首先要了解二叉搜索树
             //下面是二叉搜索树的删除  pl代表左边，pr右边
             /**
-            @link https://blog.csdn.net/qq_37169817/article/details/78880110
+            @link https://blog.csdn.net/xiaoxiaoxuanao/article/details/61918125
+            (内含动图，更便于理解)
              */
 
             TreeNode<K,V> p = this, pl = left, pr = right, replacement;
             if (pl != null && pr != null) {
                 //有两个儿子情况
                 TreeNode<K,V> s = pr, sl;
-                //找到左边最大的元素
+                //找到右边最小的元素
                 while ((sl = s.left) != null){ // find successor
                     s = sl;
                 }
                 boolean c = s.red; s.red = p.red; p.red = c; // swap colors 交换p和s的颜色
-                TreeNode<K,V> sr = s.right;//找到左边最大的元素，放到待删除的节点
-                TreeNode<K,V> pp = p.parent;//p的父节点
+                TreeNode<K,V> sr = s.right;//记录右子树最左节点的右子树
+                TreeNode<K,V> pp = p.parent;//记录p的父节点pp
                 if (s == pr) { // p was s's direct parent
-                //改变p父亲的方向
+                //改变pr父亲的方向
                     p.parent = s;
                     s.right = p;
                 }else {
-
                     TreeNode<K,V> sp = s.parent;
                     if ((p.parent = sp) != null) {
                         if (s == sp.left)
@@ -643,21 +661,32 @@
                     if ((s.right = pr) != null)
                         pr.parent = s;
                 }
-                p.left = null;
-                if ((p.right = sr) != null)
+                p.left = null;//把p的左节点赋值为null
+                if ((p.right = sr) != null){
+                    //把原来s的右节点赋值给p的右边节点
                     sr.parent = p;
-                if ((s.left = pl) != null)
+                }
+                if ((s.left = pl) != null){
+                    //p的左边节点赋值给s的左边节点
+                    //再将pl和s关联起来
                     pl.parent = s;
+                }
                 if ((s.parent = pp) == null){
+                    //把s和父节点和原来的父节点关联起来
+                    //并判断，如果pp是为null，也就是说s是根节点，所以赋值给root
                     root = s;
                 }else if (p == pp.left){
+                    //pp！=null 判断p是pp的左子树，就讲pp的左子树和s进行关联
                     pp.left = s;
                 }else{
+                    //pp！=null 判断p是pp的右子树，就讲pp的右子树和s进行关联
                     pp.right = s;
                 }
                 if (sr != null){
+                    //把sr赋值给replacement
                     replacement = sr;
                 }else{
+                     //把p赋值给replacement
                     replacement = p;
                 }
             }else if (pl != null){//只有左边
@@ -697,5 +726,104 @@
             if (movable)//false的话就不root当做是首个节点
                 moveRootToFront(tab, r);
         }
-
+        /**
+        删除修复情况1：当前节点是黑+黑且兄弟节点为红色(此时父节点和兄弟节点的子节点分为黑)
+        删除修复情况2：当前节点是黑加黑且兄弟是黑色且兄弟节点的两个子节点全为黑色
+        删除修复情况3：当前节点颜色是黑+黑，兄弟节点是黑色，兄弟的左子是红色，右子是黑色
+        删除修复情况4：当前节点颜色是黑-黑色，它的兄弟节点是黑色，但是兄弟节点的右子是红色，兄弟节点左子的颜色任意
+        解法：
+        1、把父节点染成红色，把兄弟结点染成黑色，之后重新进入算法（我们只讨论当前节点是其父节点左孩子时的情况）。
+        此变换后原红黑树性质5不变，而把问题转化为兄弟节点为黑色的情况(注：变化前，原本就未违反性质5，只是为了把问题转化为兄弟节点为黑色的情况)。
+        2、把当前节点和兄弟节点中抽取一重黑色追加到父节点上，把父节点当成新的当前节点，重新进入算法。（此变换后性质5不变）
+        3、把兄弟结点染红，兄弟左子节点染黑，之后再在兄弟节点为支点解右旋，之后重新进入算法。此是把当前的情况转化为情况4，而性质5得以保持。
+        4、把兄弟节点染成当前节点父节点的颜色，把当前节点父节点染成黑色，兄弟节点右子染成黑色，之后以当前节点的父节点为支点进行左旋，此时算法结束，红黑树所有性质调整正确。
+        */
     
+         static <K,V> TreeNode<K,V> balanceDeletion(TreeNode<K,V> root,
+                                                   TreeNode<K,V> x) {
+            for (TreeNode<K,V> xp, xpl, xpr;;)  {
+                if (x == null || x == root){
+                    return root;
+                }else if ((xp = x.parent) == null) {
+                    x.red = false;
+                    return x;
+                }else if (x.red) {
+                    x.red = false;
+                    return root;
+                }else if ((xpl = xp.left) == x) {
+                    if ((xpr = xp.right) != null && xpr.red) {
+                        xpr.red = false;
+                        xp.red = true;
+                        root = rotateLeft(root, xp);
+                        xpr = (xp = x.parent) == null ? null : xp.right;
+                    }
+                    if (xpr == null){
+                        x = xp;
+                    }else {
+                        TreeNode<K,V> sl = xpr.left, sr = xpr.right;
+                        if ((sr == null || !sr.red) &&
+                            (sl == null || !sl.red)) {
+                            xpr.red = true;
+                            x = xp;
+                        }else {
+                            if (sr == null || !sr.red) {
+                                if (sl != null)
+                                    sl.red = false;
+                                xpr.red = true;
+                                root = rotateRight(root, xpr);
+                                xpr = (xp = x.parent) == null ?
+                                    null : xp.right;
+                            }
+                            if (xpr != null) {
+                                xpr.red = (xp == null) ? false : xp.red;
+                                if ((sr = xpr.right) != null)
+                                    sr.red = false;
+                            }
+                            if (xp != null) {
+                                xp.red = false;
+                                root = rotateLeft(root, xp);
+                            }
+                            x = root;
+                        }
+                    }
+                }
+                else { // symmetric
+                    if (xpl != null && xpl.red) {
+                        xpl.red = false;
+                        xp.red = true;
+                        root = rotateRight(root, xp);
+                        xpl = (xp = x.parent) == null ? null : xp.left;
+                    }
+                    if (xpl == null)
+                        x = xp;
+                    else {
+                        TreeNode<K,V> sl = xpl.left, sr = xpl.right;
+                        if ((sl == null || !sl.red) &&
+                            (sr == null || !sr.red)) {
+                            xpl.red = true;
+                            x = xp;
+                        }
+                        else {
+                            if (sl == null || !sl.red) {
+                                if (sr != null)
+                                    sr.red = false;
+                                xpl.red = true;
+                                root = rotateLeft(root, xpl);
+                                xpl = (xp = x.parent) == null ?
+                                    null : xp.left;
+                            }
+                            if (xpl != null) {
+                                xpl.red = (xp == null) ? false : xp.red;
+                                if ((sl = xpl.left) != null)
+                                    sl.red = false;
+                            }
+                            if (xp != null) {
+                                xp.red = false;
+                                root = rotateRight(root, xp);
+                            }
+                            x = root;
+                        }
+                    }
+                }
+            }
+        }
