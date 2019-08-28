@@ -430,7 +430,7 @@
                 //第二种情况，也就是将x父节点变成p的父节点
         //         
         //          fu (pp) null 也就是说到头了 这时候就可以将r赋值给root
-        //         / |
+        //         / ⬆
         //        p  x(r)                     
         // *    /  \  / \
         // *   O    rl   O3         
@@ -487,7 +487,7 @@
         //(pp = l.parent = p.parent)这句代码相当于第二种情况
         //         
         //          fu (pp) null 也就是说到头了 这时候就可以将r赋值给root
-        //         / |
+        //         / ⬆
         //        xp(l)
         //       /  \
         //      x  xpp (p)                      
@@ -634,6 +634,17 @@
             @link https://blog.csdn.net/xiaoxiaoxuanao/article/details/61918125
             (内含动图，更便于理解)
              */
+             /**
+              //   fu                           fu
+        //         /                            /
+        //        p                            s
+        //       /  \                         / \
+        //      pl  pr           ==>>>>>>>   pl  pr     
+        // *       /   \                         / \
+        // *      s     xpp                     sr  xpp
+        // *       \    / \                         / \
+        // *        sr O2 O3                       O2  O3
+              */
 
             TreeNode<K,V> p = this, pl = left, pr = right, replacement;
             if (pl != null && pr != null) {
@@ -644,19 +655,40 @@
                     s = sl;
                 }
                 boolean c = s.red; s.red = p.red; p.red = c; // swap colors 交换p和s的颜色
+                // 这个交换p和s的颜色是因为要把s换到p的位置上来
+
                 TreeNode<K,V> sr = s.right;//记录右子树最左节点的右子树
                 TreeNode<K,V> pp = p.parent;//记录p的父节点pp
                 if (s == pr) { // p was s's direct parent
                 //改变pr父亲的方向
+                 null(pp)
+        //        |
+        //        p                     s
+        //       /  \                  /  \
+        //      pl  pr (s)    ==>>    pl   sr
+        //           \ \
+        //(原先s的➡节点)sr  p
                     p.parent = s;
                     s.right = p;
                 }else {
+                    
+        //       fu (pp) null 也就是说到头了 改变root   
+        //         / 
+        //        p
+        //       /  \
+        //      pl  pr                       
+        // *       /   \
+        // *  s   p     xpp               
+        // *   \   \    / \                  
+        // *    pr  sr O2 O3 
+
                     TreeNode<K,V> sp = s.parent;
                     if ((p.parent = sp) != null) {
-                        if (s == sp.left)
+                        if (s == sp.left){
                             sp.left = p;
-                        else
+                        }else{
                             sp.right = p;
+                        }
                     }
                     if ((s.right = pr) != null)
                         pr.parent = s;
@@ -664,16 +696,35 @@
                 p.left = null;//把p的左节点赋值为null
                 if ((p.right = sr) != null){
                     //把原来s的右节点赋值给p的右边节点
+        //        p
+        //       /  \
+        //      pl  pr (s)
+        //            \
+        //             p
+        //             ⬆\
+        //              sr
                     sr.parent = p;
                 }
                 if ((s.left = pl) != null){
+             // ★★★★这个就相当于完全把s替换到p的位置上面
+
                     //p的左边节点赋值给s的左边节点
                     //再将pl和s关联起来
+        //        p
+        //       /  \
+        //      pl  pr (s)
+        //         /⬆ \
+        //         pl  p
+        //             ⬆\
+        //             sr  
                     pl.parent = s;
                 }
                 if ((s.parent = pp) == null){
                     //把s和父节点和原来的父节点关联起来
                     //并判断，如果pp是为null，也就是说s是根节点，所以赋值给root
+                //      s
+                //     /  \                  
+                //   pl   sr
                     root = s;
                 }else if (p == pp.left){
                     //pp！=null 判断p是pp的左子树，就讲pp的左子树和s进行关联
@@ -683,11 +734,12 @@
                     pp.right = s;
                 }
                 if (sr != null){
-                    //把sr赋值给replacement
+                    //如果sr不为null，那么就要把sr接上s的父节点
+                    // 也就是赋值给replacement
                     replacement = sr;
                 }else{
-                     //把p赋值给replacement
-                    replacement = p;
+                     //把p赋值给replacement，做个标记位，下面有判断到
+                    replacement = p;//也就是左右都没有的情况
                 }
             }else if (pl != null){//只有左边
                 replacement = pl;
@@ -705,12 +757,14 @@
                     pp.left = replacement;
                 else
                     pp.right = replacement;
-                p.left = p.right = p.parent = null;
+                p.left = p.right = p.parent = null;//把p的指针置null
+                //这里你可能会问，为什么不把p也为 null,因为后面还有用到p的颜色
             }
-            //注意，p的颜色和p最左边的节点的颜色交换过，也就是说
-            //当最左边的节点是红色的话就不用修改红黑树的颜色结构
+            //注意，p的颜色和p右子树最左边的节点的颜色交换过，也就是说
+            //当右子树最左边的节点是红色的话就不用修改红黑树的颜色结构
             // (具体去下载下那个html演示，就知道为什么了)
             //如果p是红色就返回root，否则就要做红黑树删除的修复,具体参考博客（有4种情况）
+            //这里是以为删除完p之后重新生成的树节点replacement为修复
             TreeNode<K,V> r = p.red ? root : balanceDeletion(root, replacement);
             if (replacement == p) {  // detach 
             //也就说不需要修改二叉搜索树结构，那么直接把p的左右子树置null
@@ -722,27 +776,70 @@
                     else if (p == pp.right)
                         pp.right = null;
                 }
+                
             }
             if (movable)//false的话就不root当做是首个节点
                 moveRootToFront(tab, r);
         }
         /**
         删除修复情况1：当前节点是黑+黑且兄弟节点为红色(此时父节点和兄弟节点的子节点分为黑)
+            黑
+           /  \
+     (cur)黑   红
+     解：把父节点染成红色，把兄弟结点染成黑色，之后重新进入算法（我们只讨论当前节点是其父节点左孩子时的情况）。
+        此变换后原红黑树性质5不变，而把问题转化为兄弟节点为黑色的情况(注：变化前，原本就未违反性质5，
+        只是为了把问题转化为兄弟节点为黑色的情况)。
+          红
+         / \
+        黑   黑
+
         删除修复情况2：当前节点是黑加黑且兄弟是黑色且兄弟节点的两个子节点全为黑色
+            黑
+           /  \
+    (cur) 黑   黑
+              / \
+             黑  黑
+     2、把当前节点和兄弟节点中抽取一重黑色追加到父节点上，把父节点当成新的当前节点，重新进入算法。（此变换后性质5不变）
+     (cur)  黑
+           /  \
+          黑   黑
+              / \
+             黑  黑
         删除修复情况3：当前节点颜色是黑+黑，兄弟节点是黑色，兄弟的左子是红色，右子是黑色
+            黑
+           /  \
+    (cur) 黑   黑
+              / \
+             红  黑
+    3、把兄弟结点染红，兄弟左子节点染黑，之后再在兄弟节点为支点解右旋，之后重新进入算法。
+       此是把当前的情况转化为情况4，而性质5得以保持。
+            黑                      黑
+           /  \                    /  \
+    (cur) 黑   红    ====》右旋(cur)黑   黑
+              / \                       \
+             黑  黑                      红
+        
         删除修复情况4：当前节点颜色是黑-黑色，它的兄弟节点是黑色，但是兄弟节点的右子是红色，兄弟节点左子的颜色任意
-        解法：
-        1、把父节点染成红色，把兄弟结点染成黑色，之后重新进入算法（我们只讨论当前节点是其父节点左孩子时的情况）。
-        此变换后原红黑树性质5不变，而把问题转化为兄弟节点为黑色的情况(注：变化前，原本就未违反性质5，只是为了把问题转化为兄弟节点为黑色的情况)。
-        2、把当前节点和兄弟节点中抽取一重黑色追加到父节点上，把父节点当成新的当前节点，重新进入算法。（此变换后性质5不变）
-        3、把兄弟结点染红，兄弟左子节点染黑，之后再在兄弟节点为支点解右旋，之后重新进入算法。此是把当前的情况转化为情况4，而性质5得以保持。
-        4、把兄弟节点染成当前节点父节点的颜色，把当前节点父节点染成黑色，兄弟节点右子染成黑色，之后以当前节点的父节点为支点进行左旋，此时算法结束，红黑树所有性质调整正确。
+            黑
+           /  \
+    (cur) 黑   黑
+              /  \
+        (Random)  红
+       4、把兄弟节点染成当前节点父节点的颜色，把当前节点父节点染成黑色，兄弟节点右子染成黑色，
+       之后以当前节点的父节点为支点进行左旋，此时算法结束，红黑树所有性质调整正确。
+            黑                        黑
+           /  \                      / \
+    (cur) 黑   黑    ======> 左旋    黑   黑
+              /  \                 / \ 
+        (Random)  黑              黑  (random)
+
         */
     
          static <K,V> TreeNode<K,V> balanceDeletion(TreeNode<K,V> root,
                                                    TreeNode<K,V> x) {
+                        
             for (TreeNode<K,V> xp, xpl, xpr;;)  {
-                if (x == null || x == root){
+                if (x == null || x == root){//不用旋转，直接为root
                     return root;
                 }else if ((xp = x.parent) == null) {
                     x.red = false;
@@ -786,8 +883,7 @@
                             x = root;
                         }
                     }
-                }
-                else { // symmetric
+                }else { // symmetric
                     if (xpl != null && xpl.red) {
                         xpl.red = false;
                         xp.red = true;
