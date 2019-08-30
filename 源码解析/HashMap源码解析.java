@@ -170,6 +170,10 @@
 						//格子里面装着红黑树，对其进行拆解...待弄清
                         ((TreeNode<K,V>)e).split(this, newTab, j, oldCap);
                     }else { // preserve order
+
+                    // leetcode相似的题
+                    // https://leetcode-cn.com/problems/partition-list/submissions/
+                    
 					//格子里面装着多个节点,先初始化4个节点
 					//分别是头尾高低节点
                         Node<K,V> loHead = null, loTail = null;
