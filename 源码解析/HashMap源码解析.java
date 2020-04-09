@@ -423,3 +423,26 @@
             ++modCount;
         }
     }
+/**
+关于hashmap的线程安全性：
+不安全
+比如A B两个线程（A线程获数据 B线程存数据） 同时操作myHashMap
+
+　　1.B线程执行存放数据
+
+　　modelHashMap.put（“1”，“2”）;
+
+　　2.A线程执行get获取数据
+
+　　modelHashMap.get（“1”）
+
+　　A线程获取的值本来应该是2，但是如果A线程在刚到达获取的动作还没执行的时候，
+
+　　线程执行的机会又跳到线程B，此时线程B又对modelHashMap赋值 
+    如：modelHashMap.put（“1”，“3”）;
+
+　　然后线程虚拟机又执行线程A，A取到的值为3，这样map中第一个存放的值 就会丢失。
+
+　　要保证值的准确，就要保证操作的原子性，就是保证A操作从头开始不能被打断。。所有要用同步关键字，
+或者使用java 1.5中的current新包中的ConcurrentHashMap，这是线程安全的，在java最新的并发包中，对之前非线程安全的工具，如hashMap List 都做了同步封转。
+ */
